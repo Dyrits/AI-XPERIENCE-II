@@ -47,7 +47,7 @@ export function validateBoard(
     const hasDuplicates = duplicateValues.length > 0;
     const isExceeded = sum > target;
     const isSumMet = sum === target && !hasDuplicates;
-    const isSatisfied = isSumMet && lineDecided;
+    const isSatisfied = isSumMet;
 
     rowStatuses.push({
       index: r,
@@ -89,7 +89,7 @@ export function validateBoard(
     const hasDuplicates = duplicateValues.length > 0;
     const isExceeded = sum > target;
     const isSumMet = sum === target && !hasDuplicates;
-    const isSatisfied = isSumMet && lineDecided;
+    const isSatisfied = isSumMet;
 
     colStatuses.push({
       index: c,
@@ -129,9 +129,28 @@ export function validateBoard(
   const allRowsSatisfied = rowStatuses.every((s) => s.isSatisfied);
   const allColsSatisfied = colStatuses.every((s) => s.isSatisfied);
   const allSumsMet = rowStatuses.every((s) => s.isSumMet) && colStatuses.every((s) => s.isSumMet);
-  const hasNoAdjacencyViolations = adjacencyViolations.length === 0;
+  // Check if any non-lumen cells touch orthogonally when all sums are met
+  let nonLumenAdjacencyExists = false;
+  if (allRowsSatisfied && allColsSatisfied) {
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (states[r][c] !== 'lumen') {
+          // Check right neighbor
+          if (c + 1 < size && states[r][c + 1] !== 'lumen') {
+            nonLumenAdjacencyExists = true;
+          }
+          // Check down neighbor
+          if (r + 1 < size && states[r + 1][c] !== 'lumen') {
+            nonLumenAdjacencyExists = true;
+          }
+        }
+      }
+    }
+  }
 
-  const isSolved = allCellsDecided && allRowsSatisfied && allColsSatisfied && hasNoAdjacencyViolations;
+  const hasNoAdjacencyViolations = adjacencyViolations.length === 0;
+  // A board is solved when all rows and cols have exact sums, and no non-lumen cells touch
+  const isSolved = allRowsSatisfied && allColsSatisfied && hasNoAdjacencyViolations && !nonLumenAdjacencyExists;
   const hasAnyViolation =
     adjacencyViolations.length > 0 ||
     rowStatuses.some((s) => s.isExceeded || s.hasDuplicates) ||

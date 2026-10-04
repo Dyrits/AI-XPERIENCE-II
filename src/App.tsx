@@ -126,6 +126,13 @@ export const App: React.FC = () => {
       setIsTimerRunning(false);
       sound.playVictoryFanfare();
 
+      // Ensure all remaining undecided cells become eclipse for visual completeness
+      setCellStates((prev) =>
+        prev.map((row) =>
+          row.map((st) => (st === 'empty' || st === 'marked' ? 'eclipse' : st))
+        )
+      );
+
       // Confetti firework
       confetti({
         particleCount: 120,
