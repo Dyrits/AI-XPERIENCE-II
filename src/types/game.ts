@@ -26,6 +26,7 @@ export interface LineStatus {
   index: number;
   currentSum: number;
   targetSum: number;
+  isSumMet: boolean;
   isComplete: boolean;
   isSatisfied: boolean;
   isExceeded: boolean;
@@ -40,6 +41,7 @@ export interface AdjacencyViolation {
 
 export interface ValidationResult {
   isSolved: boolean;
+  allSumsMet: boolean;
   rowStatuses: LineStatus[];
   colStatuses: LineStatus[];
   adjacencyViolations: AdjacencyViolation[];

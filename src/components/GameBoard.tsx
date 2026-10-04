@@ -120,6 +120,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 const status = validation.colStatuses[c];
                 const currentSum = status ? status.currentSum : 0;
                 const isSatisfied = status ? status.isSatisfied : false;
+                const isSumMet = status ? status.isSumMet : false;
                 const isExceeded = status ? status.isExceeded : false;
                 const hasDups = status ? status.hasDuplicates : false;
                 const isColHovered = hoveredCell && hoveredCell[1] === c;
@@ -127,9 +128,18 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 return (
                   <div
                     key={`col-target-${c}`}
+                    title={
+                      isSatisfied
+                        ? 'Line satisfied and fully decided!'
+                        : isSumMet
+                        ? 'Target sum met! Mark remaining empty cells as Eclipse (🌑) to complete.'
+                        : undefined
+                    }
                     className={`w-10 sm:w-14 md:w-16 h-10 sm:h-14 md:h-16 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border ${
                       isSatisfied
                         ? 'bg-amber-500/20 border-amber-400/60 shadow-lg shadow-amber-500/10 text-amber-300'
+                        : isSumMet
+                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-300/90 shadow-sm'
                         : isExceeded || hasDups
                         ? 'bg-rose-500/20 border-rose-500/60 text-rose-300'
                         : isColHovered
@@ -142,12 +152,15 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                         {target}
                       </span>
                       {isSatisfied && <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" />}
+                      {!isSatisfied && isSumMet && (
+                        <span className="w-2 h-2 rounded-full bg-amber-400/80" title="Sum matched" />
+                      )}
                       {(isExceeded || hasDups) && (
                         <AlertCircle className="w-3 h-3 text-rose-400 animate-bounce" />
                       )}
                     </div>
                     <div className="text-[9px] sm:text-[11px] font-mono leading-none mt-0.5 opacity-80">
-                      <span className={currentSum > target ? 'text-rose-400 font-bold' : ''}>
+                      <span className={currentSum > target ? 'text-rose-400 font-bold' : isSumMet ? 'text-amber-300 font-bold' : ''}>
                         {currentSum}
                       </span>
                       <span className="text-slate-500">/{target}</span>
@@ -173,9 +186,18 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 <div key={`row-${r}`} className="flex items-center">
                   {/* Row Target Header */}
                   <div
+                    title={
+                      isRowSatisfied
+                        ? 'Line satisfied and fully decided!'
+                        : rowStatus && rowStatus.isSumMet
+                        ? 'Target sum met! Mark remaining empty cells as Eclipse (🌑) to complete.'
+                        : undefined
+                    }
                     className={`w-10 sm:w-14 md:w-16 h-10 sm:h-14 md:h-16 rounded-xl flex flex-col items-center justify-center mr-1 sm:mr-2 transition-all duration-200 border ${
                       isRowSatisfied
                         ? 'bg-amber-500/20 border-amber-400/60 shadow-lg shadow-amber-500/10 text-amber-300'
+                        : rowStatus && rowStatus.isSumMet
+                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-300/90 shadow-sm'
                         : isRowExceeded || hasRowDups
                         ? 'bg-rose-500/20 border-rose-500/60 text-rose-300'
                         : isRowHovered
@@ -188,12 +210,15 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                         {target}
                       </span>
                       {isRowSatisfied && <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" />}
+                      {!isRowSatisfied && rowStatus && rowStatus.isSumMet && (
+                        <span className="w-2 h-2 rounded-full bg-amber-400/80" title="Sum matched" />
+                      )}
                       {(isRowExceeded || hasRowDups) && (
                         <AlertCircle className="w-3 h-3 text-rose-400 animate-bounce" />
                       )}
                     </div>
                     <div className="text-[9px] sm:text-[11px] font-mono leading-none mt-0.5 opacity-80">
-                      <span className={currentRowSum > target ? 'text-rose-400 font-bold' : ''}>
+                      <span className={currentRowSum > target ? 'text-rose-400 font-bold' : rowStatus && rowStatus.isSumMet ? 'text-amber-300 font-bold' : ''}>
                         {currentRowSum}
                       </span>
                       <span className="text-slate-500">/{target}</span>

@@ -21,7 +21,7 @@ import { VictoryModal } from './components/VictoryModal';
 import { LevelSelectModal } from './components/LevelSelectModal';
 import { DailyModal } from './components/DailyModal';
 import { CustomPuzzleModal } from './components/CustomPuzzleModal';
-import { Lightbulb, X, Sparkles } from 'lucide-react';
+import { Lightbulb, X, Sparkles, Moon } from 'lucide-react';
 
 export const App: React.FC = () => {
   // 1. Current Puzzle & Board State
@@ -355,6 +355,34 @@ export const App: React.FC = () => {
     setActiveHint(null);
   }, [activeHint, handleCellClick]);
 
+  // Darken all remaining empty cells when all sums are met
+  const handleFillRemainingShadows = useCallback(() => {
+    if (isCompleted) return;
+    const moves: GameMove[] = [];
+    const nextStates = cellStates.map((row, r) =>
+      row.map((st, c) => {
+        if (st === 'empty' || st === 'marked') {
+          moves.push({
+            row: r,
+            col: c,
+            prevState: st,
+            newState: 'eclipse',
+          });
+          return 'eclipse';
+        }
+        return st;
+      })
+    );
+
+    if (moves.length > 0) {
+      sound.playEclipseClick();
+      setCellStates(nextStates);
+      setHistory((prev) => [...prev, moves]);
+      setRedoStack([]);
+      setMovesCount((m) => m + 1);
+    }
+  }, [cellStates, isCompleted]);
+
   // Next Campaign Level
   const handleNextLevel = useCallback(() => {
     setShowVictory(false);
@@ -463,6 +491,24 @@ export const App: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* All Sums Met Banner */}
+        {validation.allSumsMet && !validation.isSolved && !isCompleted && (
+          <div className="w-full max-w-lg mb-2 p-3 rounded-2xl bg-amber-500/15 border border-amber-400/50 shadow-xl shadow-amber-500/10 flex items-center justify-between gap-3 animate-in fade-in duration-200">
+            <div className="flex items-center gap-2.5">
+              <Moon className="w-5 h-5 text-indigo-300 shrink-0" />
+              <div className="text-xs text-slate-200">
+                <span className="font-bold text-amber-300">All target sums matched!</span> Turn the remaining empty cells into <strong className="text-slate-100">Eclipse (🌑)</strong> to complete the puzzle.
+              </div>
+            </div>
+            <button
+              onClick={handleFillRemainingShadows}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs shrink-0 shadow-sm transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>Darken All</span>
+            </button>
           </div>
         )}
 

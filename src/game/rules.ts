@@ -46,12 +46,14 @@ export function validateBoard(
     const target = rowTargets[r];
     const hasDuplicates = duplicateValues.length > 0;
     const isExceeded = sum > target;
-    const isSatisfied = sum === target && !hasDuplicates && lineDecided;
+    const isSumMet = sum === target && !hasDuplicates;
+    const isSatisfied = isSumMet && lineDecided;
 
     rowStatuses.push({
       index: r,
       currentSum: sum,
       targetSum: target,
+      isSumMet,
       isComplete: lineDecided,
       isSatisfied,
       isExceeded,
@@ -86,12 +88,14 @@ export function validateBoard(
     const target = colTargets[c];
     const hasDuplicates = duplicateValues.length > 0;
     const isExceeded = sum > target;
-    const isSatisfied = sum === target && !hasDuplicates && lineDecided;
+    const isSumMet = sum === target && !hasDuplicates;
+    const isSatisfied = isSumMet && lineDecided;
 
     colStatuses.push({
       index: c,
       currentSum: sum,
       targetSum: target,
+      isSumMet,
       isComplete: lineDecided,
       isSatisfied,
       isExceeded,
@@ -124,6 +128,7 @@ export function validateBoard(
 
   const allRowsSatisfied = rowStatuses.every((s) => s.isSatisfied);
   const allColsSatisfied = colStatuses.every((s) => s.isSatisfied);
+  const allSumsMet = rowStatuses.every((s) => s.isSumMet) && colStatuses.every((s) => s.isSumMet);
   const hasNoAdjacencyViolations = adjacencyViolations.length === 0;
 
   const isSolved = allCellsDecided && allRowsSatisfied && allColsSatisfied && hasNoAdjacencyViolations;
@@ -134,6 +139,7 @@ export function validateBoard(
 
   return {
     isSolved,
+    allSumsMet,
     rowStatuses,
     colStatuses,
     adjacencyViolations,
