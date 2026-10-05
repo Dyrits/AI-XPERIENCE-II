@@ -719,7 +719,7 @@
     if (seed == null) seed = (Math.random() * 0x7fffffff) | 0;
     const rng = mulberry32(seed >>> 0);
     const start = Date.now();
-    const TOTAL_MS = 5000;
+    const TOTAL_MS = 4000;
 
     for (let attempt = 0; attempt < 80; attempt++) {
       if (Date.now() > start + TOTAL_MS) break;
@@ -727,8 +727,9 @@
       const sol = generateSolution(n, springCount, rng);
       if (!sol) continue;
       // fresh carving budget per attempt so slow checks on one layout can
-      // never starve the next into returning a fully-given board
-      const pz = carve(sol, n, keep, rng, Date.now() + 1800);
+      // never starve the next into returning a fully-given board; the cap
+      // also keeps the last attempt from overshooting the total budget
+      const pz = carve(sol, n, keep, rng, Math.min(Date.now() + 1800, start + 3800));
       // carve proves uniqueness with every removal it keeps, so a final
       // re-check that runs out of effort (reports "2" via budget abort)
       // is not evidence against the board — only a genuine count is.

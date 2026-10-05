@@ -505,22 +505,32 @@
     state.settledChime = new Set();
     syncChips();
     veil.hidden = false;
+    const veilMsg = veil.querySelector('p');
+    if (veilMsg) veilMsg.textContent = difficulty === 'deluge' ? 'gathering a heavy rain…' : 'gathering rain…';
     updateHud();
     // a plain timer (not requestAnimationFrame) so a hidden or occluded tab
     // can never stall generation behind a paused animation frame
     genTimer = setTimeout(() => {
       const preset = E.PRESETS[difficulty];
-      const pz = denseFallback
-        ? E.generate({ ...preset, keep: Math.min(0.8, preset.keep + 0.25) })
-        : E.generate(difficulty);
+      let pz = null;
+      try {
+        pz = denseFallback
+          ? E.generate({ ...preset, keep: Math.min(0.8, preset.keep + 0.25) })
+          : E.generate(difficulty);
+      } catch (err) {
+        console.error('generation failed', err);
+      }
       if (!pz) {
+        // straight to the denser, faster variant — a fresh 4s budget on the
+        // same difficulty could chain into a long wait; this path can't
         genFails++;
         if (genFails >= 2) {
           genFails = 0;
-          toast('the storm is stubborn — trying a calmer sky');
-          genTimer = setTimeout(() => newPuzzle(difficulty, true), 80);
+          veil.hidden = true;
+          toast('the storm scattered — here is a gentler one');
+          setTimeout(() => newPuzzle('gentle'), 80);
         } else {
-          genTimer = setTimeout(() => newPuzzle(difficulty), 120);
+          genTimer = setTimeout(() => newPuzzle(difficulty, true), 80);
         }
         return;
       }
