@@ -1,334 +1,126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#eff3fc">
-  <meta name="description" content="AI-XPERIENCE volume 2. One shared prompt, three original logic games. Play Petal by GPT-6 Astra, Lumina by Gemini 3.8 Flash and Mothlight by Claude Opus 5.5.">
-  <title>AI-XPERIENCE, volume 2 | New games, same prompt</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23355ddd'/%3E%3Ccircle cx='22' cy='22' r='8' fill='%23eff3fc'/%3E%3Ccircle cx='42' cy='42' r='8' fill='%23ffb6a2'/%3E%3C/svg%3E">
-  <style>
-    :root {
-      color-scheme: light;
-      --paper: #eff3fc;
-      --ink: #192c50;
-      --muted: #53627b;
-      --blue: #355ddd;
-      --line: #ced7e8;
-      --green: #2b6659;
-      --peach: #ffb6a2;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; }
-    a:focus-visible, summary:focus-visible {
-      outline: 3px solid var(--blue);
-      outline-offset: 6px;
-    }
-    .skip-link {
-      position: absolute;
-      top: -100px;
-      left: 16px;
-      z-index: 2;
-      padding: 12px 18px;
-      background: white;
-      border-radius: 8px;
-    }
-    .skip-link:focus { top: 16px; }
-    .shell { width: min(1120px, calc(100% - 80px)); margin-inline: auto; }
-    .masthead {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding-block: 30px;
-      border-bottom: 1px solid var(--line);
-    }
-    .brand { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; letter-spacing: -.04em; }
-    .brand svg { width: 30px; height: 30px; flex-shrink: 0; }
-    .volume { padding: 6px 14px; border: 1px solid var(--line); border-radius: 100px; font-size: 13px; white-space: nowrap; }
-    .intro {
-      display: grid;
-      grid-template-columns: 1.3fr 1fr;
-      gap: 60px;
-      align-items: end;
-      padding-block: 58px 46px;
-    }
-    h1 { margin: 0; font-size: clamp(44px, 5.8vw, 76px); font-weight: 750; line-height: 1.06; letter-spacing: -.06em; }
-    h1 span { display: block; }
-    .intro-copy { max-width: 36ch; padding-bottom: 5px; }
-    .intro-copy p { margin: 0 0 16px; font-size: 17px; line-height: 1.65; color: var(--muted); }
-    .intro-copy a { text-underline-offset: 5px; font-size: 14px; font-weight: 600; }
-    .games { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-    .game { display: flex; flex-direction: column; background: white; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; }
-    .art { height: 244px; display: grid; place-items: center; position: relative; overflow: hidden; }
-    .petal .art { background: #deece6; }
-    .lumina .art { background: #dce5fc; }
-    .mothlight .art { background: #e6e0f7; }
-    .art::before, .art::after {
-      content: "";
-      position: absolute;
-      width: 190px;
-      height: 190px;
-      border: 1px solid;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .petal .art::before, .petal .art::after { border-color: #bfd6cc; }
-    .lumina .art::before, .lumina .art::after { border-color: #bbccef; }
-    .mothlight .art::before, .mothlight .art::after { border-color: #cbc0ea; }
-    .art::before { left: -80px; bottom: -100px; }
-    .art::after { right: -80px; top: -100px; }
-    .board { width: 240px; height: 220px; position: relative; }
-    .game-copy { flex: 1; display: flex; flex-direction: column; padding: 28px 30px 30px; }
-    .game-copy .play { margin-top: auto; }
-    .model { margin: 0 0 6px; color: var(--muted); font-size: 13px; }
-    .game h2 { margin: 0; font-size: 34px; line-height: 1.2; letter-spacing: -.045em; }
-    .game-description { margin: 12px 0 24px; max-width: 43ch; min-height: 3.2em; font-size: 15px; line-height: 1.6; color: var(--muted); }
-    .play {
-      min-height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 13px 18px;
-      border-radius: 12px;
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 700;
-      transition: background-color .15s ease;
-    }
-    .petal .play { background: var(--green); color: white; }
-    .petal .play:hover { background: #205246; }
-    .lumina .play { background: var(--blue); color: white; }
-    .lumina .play:hover { background: #294ab4; }
-    .mothlight .play { background: #3b2a7a; color: white; }
-    .mothlight .play:hover { background: #2e2062; }
-    .play svg { width: 18px; height: 18px; }
-    .prompt {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 40px;
-      margin-top: 48px;
-      padding-top: 30px;
-      border-top: 1px solid var(--line);
-      scroll-margin-top: 24px;
-    }
-    .prompt h2 { margin: 0 0 10px; font-size: 21px; letter-spacing: -.035em; }
-    .prompt p { max-width: 27ch; margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
-    blockquote { margin: 0; padding: 0 0 0 22px; border-left: 3px solid var(--peach); }
-    .prompt blockquote p { max-width: 68ch; color: var(--ink); font-size: 14px; line-height: 1.8; }
-    footer { display: flex; justify-content: space-between; gap: 20px; padding-block: 38px 30px; color: var(--muted); font-size: 12px; }
-    footer a { text-underline-offset: 4px; }
-    @media (max-width: 980px) {
-      .games { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .game:last-child:nth-child(odd) { grid-column: 1 / -1; }
-    }
-    @media (max-width: 760px) {
-      .shell { width: calc(100% - 40px); }
-      .masthead { padding-block: 22px; }
-      .intro { grid-template-columns: 1fr; gap: 24px; padding-block: 38px 32px; }
-      .intro-copy { max-width: 48ch; }
-      .intro-copy p { font-size: 16px; margin-bottom: 12px; }
-      .games { gap: 18px; }
-      .game-copy { padding: 24px; }
-      .art { height: 216px; }
-      .board { width: 216px; height: 198px; }
-      .prompt { grid-template-columns: 1fr; gap: 22px; margin-top: 36px; }
-      .prompt p { max-width: 48ch; }
-    }
-    @media (max-width: 580px) {
-      .games { grid-template-columns: 1fr; }
-      .game:last-child:nth-child(odd) { grid-column: auto; }
-      .brand { font-size: 14px; gap: 8px; }
-      .brand svg { width: 26px; height: 26px; }
-      .volume { padding: 6px 10px; font-size: 12px; }
-      .game-description { min-height: 0; }
-      .art { height: 230px; }
-      .board { width: 240px; height: 220px; }
-      footer { flex-wrap: wrap; gap: 12px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .play { transition: none; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Conflux — an original watershed logic puzzle. Rotate the slopes so every drop of rain finds its pool.">
+<meta name="theme-color" content="#0b1220">
+<title>Conflux · a watershed logic puzzle</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='18' r='11' fill='%230e1a30' stroke='%239fdceb' stroke-width='2'/%3E%3Ccircle cx='16' cy='18' r='4.5' fill='%239fdceb'/%3E%3Cpath d='M16 3l5 7h-10z' fill='%23f2e8d5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <a class="skip-link" href="#games">Skip to the games</a>
-  <div class="shell">
-    <header class="masthead">
-      <div class="brand">
-        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <rect x="1" y="1" width="30" height="30" rx="9" fill="#355ddd"/>
-          <circle cx="11" cy="11" r="4" fill="#eff3fc"/>
-          <circle cx="21" cy="21" r="4" fill="#ffb6a2"/>
-        </svg>
-        <span>AI-XPERIENCE</span>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="19" r="10.5" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="16" cy="19" r="4" fill="currentColor"/>
+        <path d="M16 3l5.2 7.2H10.8z" fill="#f2e8d5"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Conflux</h1>
+        <p class="tagline">a watershed logic puzzle</p>
       </div>
-      <span class="volume">Volume 2</span>
-    </header>
+    </div>
+    <div class="top-actions">
+      <button id="btn-help" class="icon-btn" type="button" aria-label="How to play" title="How to play">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 9.2a2.8 2.8 0 1 1 3.9 2.6c-.8.4-1.3 1-1.3 1.9v.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.8" r="1.3" fill="currentColor"/></svg>
+      </button>
+      <button id="btn-sound" class="icon-btn" type="button" aria-label="Sound" aria-pressed="true" title="Sound">
+        <svg id="ic-sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z" fill="currentColor"/><path d="M15 9a4.4 4.4 0 0 1 0 6M17.6 6.6a8 8 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <svg id="ic-sound-off" viewBox="0 0 24 24" aria-hidden="true" style="display:none"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5H4z" fill="currentColor"/><path d="M15.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
 
-    <main>
-      <section class="intro" aria-labelledby="page-title">
-        <h1 id="page-title"><span>One prompt.</span><span>Three new puzzles.</span></h1>
-        <div class="intro-copy">
-          <p>What happens when AI invents the rules? Each model gets the same brief: create a new logic game and build a web app to play it.</p>
-          <a href="#prompt">Read the shared prompt</a>
+  <main class="layout">
+
+    <section class="hud" aria-label="Game status">
+      <div class="stat"><span class="stat-label">time</span><span class="stat-value" id="stat-time">0:00</span></div>
+      <div class="stat"><span class="stat-label">turns</span><span class="stat-value" id="stat-moves">0</span></div>
+      <div class="stat"><span class="stat-label">best rain</span><span class="stat-value" id="stat-best">—</span></div>
+    </section>
+
+    <section class="stage" aria-label="Puzzle board">
+      <div class="board-frame">
+        <div class="board-wrap" id="board-wrap" tabindex="0" role="application"
+             aria-label="Conflux board. Arrow keys move, space or enter rotates the arrow.">
+          <svg id="board" aria-hidden="true"></svg>
+          <div class="veil" id="veil" hidden>
+            <div class="rain-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p>gathering rain…</p>
+          </div>
         </div>
-      </section>
+        <p class="board-caption" id="status-line">tap a slope to turn its arrow · long-press to turn it back</p>
+      </div>
+    </section>
 
-      <section class="games" id="games" aria-label="The games" tabindex="-1">
-        <article class="game petal" aria-labelledby="petal-title">
-          <div class="art" aria-hidden="true">
-            <svg class="board" viewBox="0 0 240 220" fill="none">
-              <defs>
-                <g id="flower">
-                  <ellipse cy="-7" rx="5" ry="7" fill="#e99283"/>
-                  <ellipse cy="-7" rx="5" ry="7" fill="#e99283" transform="rotate(72)"/>
-                  <ellipse cy="-7" rx="5" ry="7" fill="#e99283" transform="rotate(144)"/>
-                  <ellipse cy="-7" rx="5" ry="7" fill="#e99283" transform="rotate(216)"/>
-                  <ellipse cy="-7" rx="5" ry="7" fill="#e99283" transform="rotate(288)"/>
-                  <circle r="4" fill="#fff3bc"/>
-                </g>
-              </defs>
-              <rect x="34" y="34" width="172" height="172" rx="15" fill="#2b6659" opacity=".07"/>
-              <rect x="34" y="28" width="172" height="172" rx="15" fill="#f5faf7" stroke="#b6cfc1"/>
-              <g stroke="#d7e4dc">
-                <path d="M77 28v172M120 28v172M163 28v172M34 71h172M34 114h172M34 157h172"/>
-              </g>
-              <g fill="#2b6659" font-family="sans-serif" font-size="12" text-anchor="middle">
-                <text x="55" y="17">2</text><text x="98" y="17">2</text><text x="141" y="17">0</text><text x="184" y="17">2</text>
-                <text x="19" y="54">2</text><text x="19" y="97">1</text><text x="19" y="140">1</text><text x="19" y="183">2</text>
-              </g>
-              <g fill="#d5e9dc">
-                <rect x="38" y="32" width="35" height="35" rx="8"/><rect x="81" y="32" width="35" height="35" rx="8"/>
-                <rect x="167" y="75" width="35" height="35" rx="8"/><rect x="167" y="118" width="35" height="35" rx="8"/>
-                <rect x="38" y="161" width="35" height="35" rx="8"/><rect x="81" y="161" width="35" height="35" rx="8"/>
-              </g>
-              <use href="#flower" x="55.5" y="49.5"/><use href="#flower" x="98.5" y="49.5"/>
-              <use href="#flower" x="184.5" y="92.5"/><use href="#flower" x="184.5" y="135.5"/>
-              <use href="#flower" x="55.5" y="178.5"/><use href="#flower" x="98.5" y="178.5"/>
-              <g fill="#afc5b7"><circle cx="141.5" cy="92.5" r="3"/><circle cx="98.5" cy="135.5" r="3"/></g>
-            </svg>
-          </div>
-          <div class="game-copy">
-            <p class="model">GPT-6 Astra</p>
-            <h2 id="petal-title">Petal</h2>
-            <p class="game-description">Plant flowers in pairs. Match the row and column counts, and give every pair room to grow.</p>
-            <a class="play" href="https://petal-5ai.pages.dev/" target="_blank" rel="noopener noreferrer" aria-label="Play Petal, opens in a new tab">
-              <span>Play Petal</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
-            </a>
-          </div>
-        </article>
+    <section class="console" aria-label="Controls">
+      <div class="difficulty" role="radiogroup" aria-label="Difficulty">
+        <button class="chip" role="radio" aria-checked="false" data-diff="gentle" type="button">Gentle rain</button>
+        <button class="chip" role="radio" aria-checked="false" data-diff="steady" type="button">Steady storm</button>
+        <button class="chip" role="radio" aria-checked="false" data-diff="deluge" type="button">Deluge</button>
+      </div>
+      <div class="actions">
+        <button id="btn-new" class="btn btn-primary" type="button">New rain</button>
+        <button id="btn-undo" class="btn" type="button" disabled>Undo</button>
+        <button id="btn-hint" class="btn" type="button">Hint</button>
+      </div>
+    </section>
 
-        <article class="game lumina" aria-labelledby="lumina-title">
-          <div class="art" aria-hidden="true">
-            <svg class="board" viewBox="0 0 240 220" fill="none">
-              <rect x="34" y="34" width="172" height="172" rx="15" fill="#192c50" opacity=".12"/>
-              <rect x="34" y="28" width="172" height="172" rx="15" fill="#233b67"/>
-              <g stroke="#415784"><path d="M77 28v172M120 28v172M163 28v172M34 71h172M34 114h172M34 157h172"/></g>
-              <g fill="#52668e">
-                <rect x="38" y="32" width="35" height="35" rx="8"/><rect x="124" y="75" width="35" height="35" rx="8"/>
-                <rect x="81" y="118" width="35" height="35" rx="8"/><rect x="167" y="161" width="35" height="35" rx="8"/>
-              </g>
-              <g fill="#233b67"><circle cx="55.5" cy="49.5" r="9"/><circle cx="141.5" cy="92.5" r="9"/><circle cx="98.5" cy="135.5" r="9"/><circle cx="184.5" cy="178.5" r="9"/></g>
-              <g fill="#f2d27b" font-family="sans-serif" font-size="17" text-anchor="middle">
-                <text x="98" y="56">3</text><text x="141" y="56">2</text><text x="184" y="56">4</text>
-                <text x="55" y="99">2</text><text x="98" y="99">4</text><text x="184" y="99">1</text>
-                <text x="55" y="142">4</text><text x="141" y="142">1</text><text x="184" y="142">3</text>
-                <text x="55" y="185">1</text><text x="98" y="185">2</text><text x="141" y="185">3</text>
-              </g>
-              <g fill="#35538b" font-family="sans-serif" font-size="12" text-anchor="middle">
-                <text x="55" y="17">7</text><text x="98" y="17">9</text><text x="141" y="17">6</text><text x="184" y="17">8</text>
-                <text x="19" y="54">9</text><text x="19" y="97">7</text><text x="19" y="140">8</text><text x="19" y="183">6</text>
-              </g>
-            </svg>
-          </div>
-          <div class="game-copy">
-            <p class="model">Gemini 3.8 Flash</p>
-            <h2 id="lumina-title">Lumina</h2>
-            <p class="game-description">Find the shadows in a celestial grid. Follow the sums, resolve duplicates, and keep shadows apart.</p>
-            <a class="play" href="https://lumina-e8t.pages.dev/" target="_blank" rel="noopener noreferrer" aria-label="Play Lumina, opens in a new tab">
-              <span>Play Lumina</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
-            </a>
-          </div>
-        </article>
-        <article class="game mothlight" aria-labelledby="mothlight-title">
-          <div class="art" aria-hidden="true">
-            <svg class="board" viewBox="0 0 240 220" fill="none">
-              <defs>
-                <g id="moth-mini">
-                  <ellipse cx="-5" cy="-2" rx="5" ry="7" fill="#d9ccff" transform="rotate(-30 -5 -2)"/>
-                  <ellipse cx="5" cy="-2" rx="5" ry="7" fill="#d9ccff" transform="rotate(30 5 -2)"/>
-                  <ellipse cx="-4" cy="5" rx="3.5" ry="4.5" fill="#b7a3ee"/>
-                  <ellipse cx="4" cy="5" rx="3.5" ry="4.5" fill="#b7a3ee"/>
-                  <ellipse rx="1.6" ry="7" fill="#f5ecff"/>
-                  <path d="M0-13.5l-2.8 3.8h5.6z" fill="#ffc46b"/>
-                </g>
-              </defs>
-              <rect x="34" y="34" width="172" height="172" rx="15" fill="#1a1242" opacity=".14"/>
-              <rect x="34" y="28" width="172" height="172" rx="15" fill="#1d1640"/>
-              <g stroke="#30265c"><path d="M77 28v172M120 28v172M163 28v172M34 71h172M34 114h172M34 157h172"/></g>
-              <g stroke="#ffc46b" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1 4" opacity=".7"><path d="M67.5 49.5L129.5 49.5"/><path d="M110.5 49.5L129.5 49.5"/><path d="M172.5 49.5L153.5 49.5"/><path d="M86.5 92.5L67.5 92.5"/><path d="M141.5 80.5L141.5 61.5"/><path d="M184.5 104.5L184.5 123.5"/><path d="M55.5 123.5L55.5 104.5"/><path d="M98.5 147.5L98.5 166.5"/><path d="M153.5 135.5L172.5 135.5"/><path d="M67.5 178.5L86.5 178.5"/><path d="M129.5 178.5L110.5 178.5"/><path d="M172.5 178.5L110.5 178.5"/></g>
-              <g fill="#ffc46b" opacity=".22"><circle cx="141.5" cy="49.5" r="17"/><circle cx="55.5" cy="92.5" r="17"/><circle cx="184.5" cy="135.5" r="17"/><circle cx="98.5" cy="178.5" r="17"/></g>
-              <g fill="#ffc46b"><circle cx="141.5" cy="49.5" r="12"/><circle cx="55.5" cy="92.5" r="12"/><circle cx="184.5" cy="135.5" r="12"/><circle cx="98.5" cy="178.5" r="12"/></g>
-              <g fill="#5a2c06" font-family="Georgia, serif" font-size="14" font-weight="700" text-anchor="middle"><text x="141.5" y="54.0">4</text><text x="55.5" y="97.0">2</text><text x="184.5" y="140.0">2</text><text x="98.5" y="183.0">4</text></g>
-              <use href="#moth-mini" transform="translate(55.5 49.5) rotate(90)"/>
-              <use href="#moth-mini" transform="translate(98.5 49.5) rotate(90)"/>
-              <use href="#moth-mini" transform="translate(184.5 49.5) rotate(270)"/>
-              <use href="#moth-mini" transform="translate(98.5 92.5) rotate(270)"/>
-              <use href="#moth-mini" transform="translate(141.5 92.5) rotate(0)"/>
-              <use href="#moth-mini" transform="translate(184.5 92.5) rotate(180)"/>
-              <use href="#moth-mini" transform="translate(55.5 135.5) rotate(0)"/>
-              <use href="#moth-mini" transform="translate(98.5 135.5) rotate(180)"/>
-              <use href="#moth-mini" transform="translate(141.5 135.5) rotate(90)"/>
-              <use href="#moth-mini" transform="translate(55.5 178.5) rotate(90)"/>
-              <use href="#moth-mini" transform="translate(141.5 178.5) rotate(270)"/>
-              <use href="#moth-mini" transform="translate(184.5 178.5) rotate(270)"/>
-            </svg>
-          </div>
-          <div class="game-copy">
-            <p class="model">Claude Opus 5.5</p>
-            <h2 id="mothlight-title">Mothlight</h2>
-            <p class="game-description">Turn every moth toward a lamp. Each lamp shows how many moths must fly to it.</p>
-            <a class="play" href="https://mothlight-3os.pages.dev/" target="_blank" rel="noopener noreferrer" aria-label="Play Mothlight, opens in a new tab">
-              <span>Play Mothlight</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
-            </a>
-          </div>
-        </article>
-      </section>
+  </main>
 
-      <section class="prompt" id="prompt" aria-labelledby="prompt-title">
-        <div>
-          <h2 id="prompt-title">The shared prompt</h2>
-          <p>Every branch starts here. The model chooses the rules and builds the game.</p>
-        </div>
-        <blockquote>
-          <p>Invent a new game like sudoku, kakuro, hitori, or nonograms.<br>
-          Create a web application to play that game. It must be visually clean, appealing and entertaining.<br>
-          Be creative.<br>
-          It must be responsive.<br>
-          Don't ask any question. Build it as you see fit.</p>
-        </blockquote>
-      </section>
-    </main>
+  <footer class="foot">
+    <p>every drop finds its pool</p>
+  </footer>
+</div>
 
-    <footer>
-      <span>AI-XPERIENCE, volume 2</span>
-      <a href="README.md">About this experiment</a>
-    </footer>
-  </div>
+<!-- How to play -->
+<dialog id="dlg-help" class="dlg" aria-labelledby="help-title">
+  <article>
+    <h2 id="help-title">How Conflux works</h2>
+    <p>Rain falls on every cell of the watershed. Slopes pass it along; pools collect it. Your job is to turn every slope so the water moves and every pool ends up exactly full.</p>
+    <div class="demo" id="demo-board"></div>
+    <ol class="rules">
+      <li><strong>Pools</strong> are the numbered cells. The number is how many cells drain into that pool — counting the pool itself.</li>
+      <li><strong>Slopes</strong> are everything else. Tap one to turn its arrow clockwise; long-press (or right-click) to turn it back. Grey arrows are carved in stone — they don't move.</li>
+      <li>Water follows the arrows, cell after cell, and must always reach a pool. Arrows may never chase their own tail.</li>
+      <li>The ring around each pool fills as you route water to it. Exactly full is right; overfull is a flood.</li>
+    </ol>
+    <p class="fine">When the whole board drains and every ring sits exactly on its number, the watershed settles — and you win.</p>
+    <div class="dlg-actions">
+      <button class="btn btn-primary" id="btn-help-close" type="button">Start the rain</button>
+    </div>
+  </article>
+</dialog>
+
+<!-- Win -->
+<dialog id="dlg-win" class="dlg dlg-win" aria-labelledby="win-title">
+  <article>
+    <div class="win-ripple" aria-hidden="true"></div>
+    <h2 id="win-title">The watershed settles</h2>
+    <p class="win-sub" id="win-sub">Every pool exactly full.</p>
+    <div class="win-stats">
+      <div><span id="win-time" class="win-value">0:00</span><span class="stat-label">time</span></div>
+      <div><span id="win-moves" class="win-value">0</span><span class="stat-label">turns</span></div>
+      <div><span id="win-hints" class="win-value">0</span><span class="stat-label">hints</span></div>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn" id="btn-admire" type="button">Admire the map</button>
+      <button class="btn btn-primary" id="btn-again" type="button">New rain</button>
+    </div>
+  </article>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/engine.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
