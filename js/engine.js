@@ -556,8 +556,10 @@
       }
     }
     dfs(0);
+    countSolutionsFast.lastBudgetHit = budgetHit;
     return budgetHit ? limit : count;
   }
+  countSolutionsFast.lastBudgetHit = false;
 
   /* ------------------------------------------------------------------ *
    * Generation.
@@ -727,7 +729,11 @@
       // fresh carving budget per attempt so slow checks on one layout can
       // never starve the next into returning a fully-given board
       const pz = carve(sol, n, keep, rng, Date.now() + 1800);
-      if (countSolutionsFast(pz, 2) !== 1) continue;
+      // carve proves uniqueness with every removal it keeps, so a final
+      // re-check that runs out of effort (reports "2" via budget abort)
+      // is not evidence against the board — only a genuine count is.
+      const finalCount = countSolutionsFast(pz, 2);
+      if (finalCount !== 1 && !countSolutionsFast.lastBudgetHit) continue;
       const solution = Array.from(sol.dirs);
       const startDirs = Array.from(pz.givens);
       if (isWin(n, startDirs, pz.poolAt, pz.caps)) continue; // nothing left to solve

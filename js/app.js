@@ -489,8 +489,12 @@
 
   /* ---------------- new puzzle ---------------- */
 
-  function newPuzzle(difficulty) {
+  let genTimer = null;
+  let genFails = 0;
+
+  function newPuzzle(difficulty, denseFallback) {
     stopFx();
+    clearTimeout(genTimer);
     state.won = false;
     state.difficulty = difficulty;
     state.undoStack = [];
@@ -502,13 +506,25 @@
     syncChips();
     veil.hidden = false;
     updateHud();
-    // let the veil paint before the synchronous generation work
-    requestAnimationFrame(() => setTimeout(() => {
-      const pz = E.generate(difficulty);
+    // a plain timer (not requestAnimationFrame) so a hidden or occluded tab
+    // can never stall generation behind a paused animation frame
+    genTimer = setTimeout(() => {
+      const preset = E.PRESETS[difficulty];
+      const pz = denseFallback
+        ? E.generate({ ...preset, keep: Math.min(0.8, preset.keep + 0.25) })
+        : E.generate(difficulty);
       if (!pz) {
-        setTimeout(() => newPuzzle(difficulty), 60);
+        genFails++;
+        if (genFails >= 2) {
+          genFails = 0;
+          toast('the storm is stubborn — trying a calmer sky');
+          genTimer = setTimeout(() => newPuzzle(difficulty, true), 80);
+        } else {
+          genTimer = setTimeout(() => newPuzzle(difficulty), 120);
+        }
         return;
       }
+      genFails = 0;
       state.puzzle = pz;
       state.palette = poolPalette(pz.caps.length);
       state.dirs = Array.from(pz.givens);
@@ -520,7 +536,7 @@
       state.running = true;
       state.lastTick = Date.now();
       saveGame();
-    }, 30));
+    }, 60);
   }
 
   /* ---------------- help demo ---------------- */
