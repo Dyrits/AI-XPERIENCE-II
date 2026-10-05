@@ -1,32 +1,34 @@
-# AI-XPERIENCE, volume 2
+# Mothlight
 
-One prompt, different AI models, new logic games.
+A logic puzzle about moths and lamps, in the family of Sudoku, Kakuro and Nonograms.
 
-Each branch receives the same prompt. The model invents a puzzle and builds a responsive web application to play it. This volume explores games in the spirit of sudoku, kakuro, hitori, and nonograms.
+## Rules
 
-## Play the games
+1. Every cell that isn't a lamp holds a moth. Turn each moth up, down, left or right.
+2. A moth flies straight to the **first** lamp in the direction it faces. Lamps block the view; moths don't.
+3. A lamp's number is how many moths fly to it. When the count matches, the lamp lights up.
 
-| Game | Model | Play |
-| --- | --- | --- |
-| Petal | GPT-6 Astra | [Open Petal](https://petal-5ai.pages.dev/) |
-| Lumina | Gemini 3.8 Flash | [Open Lumina](https://lumina-e8t.pages.dev/) |
+Light every lamp to win. Each puzzle has exactly one solution, and you can always reach it by logic alone.
 
-**Petal** is a garden logic puzzle. Plant flowers in pairs, match the row and column counts, and keep separate pairs from sharing an edge.
+## Playing
 
-**Lumina** is a celestial logic grid. Use sum targets, duplicate constraints, and non-adjacent shadows to deduce which cells to shade.
+Open `index.html` in a browser. There's no build step and no dependencies.
 
-## The shared prompt
+| Action | Touch | Mouse | Keyboard |
+| --- | --- | --- | --- |
+| Turn a moth | Tap | Click (right-click turns back) | Space |
+| Aim directly | Swipe toward a lamp | Drag toward a lamp | W A S D |
+| Clear a moth | Long-press | Long-press | Backspace |
+| Move the cursor | | | Arrow keys |
+| Undo / redo | Buttons | Buttons | Z / Y |
+| Hint | Button | Button | H |
 
-```text
-Invent a new game like sudoku, kakuro, hitori, or nonograms.
-Create a web application to play that game. It must be visually clean, appealing and entertaining.
-Be creative.
-It must be responsive.
-Don't ask any question. Build it as you see fit.
-```
+There are four difficulties (5×5 to 8×8) plus a **Daily moth**: everyone gets the same 7×7 puzzle each day, and solving it on consecutive days builds a streak. Progress, best times and settings are saved in `localStorage`.
 
-## Browse the collection
+A hint first points out any moth that's flying the wrong way. If none are, it places the next moth that can be deduced from the board.
 
-Open [index.html](index.html) in a browser. The landing page links to both hosted games and includes the shared prompt.
+## How it works
 
-The page is self-contained HTML and CSS, with no build step, JavaScript, or external assets. It can also be served by any static web host.
+- `js/engine.js` builds the board geometry, solves puzzles by constraint propagation with backtracking, and generates them. The generator places lamps at random, picks a random solution and derives the lamp numbers. Wherever the solution isn't unique, it pins a moth, then removes any pins that turn out to be unnecessary. It keeps the best of many candidates.
+- `js/app.js` handles rendering, input, sound (Web Audio), saving, and the win animation.
+- `styles.css` contains the night-sky look. The layout is responsive, from phones up to desktop.
