@@ -1,35 +1,51 @@
-# AI-XPERIENCE, volume 2
+# Conflux
 
-One prompt, different AI models, new logic games.
+An original watershed logic puzzle, in the family of sudoku, kakuro, hitori and nonograms.
 
-Each branch receives the same prompt. The model invents a puzzle and builds a responsive web application to play it. This volume explores games in the spirit of sudoku, kakuro, hitori, and nonograms.
+Rain falls on every cell of a grid. **Pools** (the numbered cells) collect it; every other cell is a **slope** whose arrow can be turned. Rotate the slopes so that water flows, cell after cell, into the pools — until every pool is *exactly* full.
 
-## Play the games
+## The rules
 
-| Game | Model | Play |
-| --- | --- | --- |
-| Petal | GPT-6 Astra | [Open Petal](https://petal-5ai.pages.dev/) |
-| Lumina | Gemini 3.8 Flash | [Open Lumina](https://lumina-e8t.pages.dev/) |
-| Mothlight | Claude Opus 5.5 | [Open Mothlight](https://mothlight-3os.pages.dev/) |
+1. Every slope's arrow points to an orthogonal neighbour. Tap (or space) turns it clockwise; long-press, right-click or shift-space turns it back. Grey arrows are carved in stone and never move.
+2. Water follows the arrows and must always reach a pool — arrows may never form a loop.
+3. The number on a pool is exactly how many cells drain into it, counting the pool itself.
+4. The ring around each pool fills as water is routed to it. Exactly full is right; overfull is a flood.
 
-**Petal** is a garden logic puzzle. Plant flowers in pairs, match the row and column counts, and keep separate pairs from sharing an edge.
+When the whole board drains and every ring sits exactly on its number, the watershed settles and you win.
 
-**Lumina** is a celestial logic grid. Use sum targets, duplicate constraints, and non-adjacent shadows to deduce which cells to shade.
+## Play
 
-**Mothlight** is a night-time logic puzzle. Turn every moth toward a lamp. Each moth flies to the first lamp it faces, and each lamp's number says how many moths must reach it.
+Open `index.html` in any browser, or serve the folder:
 
-## The shared prompt
-
-```text
-Invent a new game like sudoku, kakuro, hitori, or nonograms.
-Create a web application to play that game. It must be visually clean, appealing and entertaining.
-Be creative.
-It must be responsive.
-Don't ask any question. Build it as you see fit.
+```sh
+python3 -m http.server 8080
 ```
 
-## Browse the collection
+Three difficulties are generated on demand — *Gentle rain* (6×6), *Steady storm* (8×8) and *Deluge* (10×10). The board is a living map: as you turn slopes, cells take on the colour of the pool they currently drain to, so your reasoning shows up as regions of tint. Progress, best times and sound settings persist in `localStorage`.
 
-Open [index.html](index.html) in a browser. The landing page links to all three hosted games and includes the shared prompt.
+Keyboard: arrow keys move, space/enter rotate, shift rotates back, `u` undo, `h` hint, `n` new rain.
 
-The page is self-contained HTML and CSS, with no build step, JavaScript, or external assets. It can also be served by any static web host.
+## How puzzles are made
+
+Every puzzle is generated in the browser and is guaranteed to have exactly one solution.
+
+1. Springs are scattered with minimum spacing; each gets a capacity, all capacities summing to the grid.
+2. Basins are grown by random frontier expansion, and each cell's arrow is oriented along a tree towards its spring — a full valid watershed.
+3. Arrows are carved away one at a time, keeping each removal only while the puzzle stays provably unique.
+
+Uniqueness is decided by a solver that enumerates basin **partitions** (connected regions matching the capacities) and counts the arrow layouts inside each basin with the directed matrix-tree theorem — givens pin a cell's out-flow to its carved direction. A second, independent solver that searches arrow assignments directly cross-checks it; the test suite verifies both agree on hundreds of random boards.
+
+```sh
+node tests/engine.test.js   # correctness + uniqueness + timing
+node tests/bench.js steady 5
+```
+
+## Files
+
+- `index.html` / `styles.css` — the page and the night-rain theme
+- `js/engine.js` — generation, solving, flow analysis (no dependencies)
+- `js/app.js` — board rendering, input, effects, persistence
+- `js/sound.js` — small WebAudio synth (pentatonic plinks)
+- `tests/` — node test suite and benchmark
+
+Built as GLM-5.3's entry for AI-XPERIENCE volume 2 — one prompt, many models.

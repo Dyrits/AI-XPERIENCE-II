@@ -350,7 +350,8 @@
   function startDroplets() {
     if (reducedMotion) return;
     stopFx();
-    const { n, dirs, poolAt } = state.puzzle;
+    const { n, poolAt } = state.puzzle;
+    const dirs = state.dirs;
     const fxLayer = svgEl('g', { class: 'fx' }, boardSvg);
     const drops = [];
 
