@@ -148,6 +148,10 @@
             class: 'arrow-path arrow-main',
             d: `M ${c + 0.34} ${r + 0.48} L ${c + 0.5} ${r + 0.26} L ${c + 0.66} ${r + 0.48}`,
           }, fg);
+          // an unset slope shows its empty slot — a dashed ring you can turn
+          svgEl('circle', {
+            class: 'slot-ring', cx: c + 0.5, cy: r + 0.5, r: 0.21,
+          }, g);
           flows[i] = fg;
         }
       }
@@ -248,7 +252,11 @@
   function rotateCell(i, ccw) {
     const { poolAt, givens } = state.puzzle;
     if (state.won || poolAt[i] >= 0) return false;
-    if (givens[i] >= 0) { S.thud(); return false; }
+    if (givens[i] >= 0) {
+      S.thud();
+      denyCell(i);
+      return false;
+    }
 
     const dom = domainOfCell(i);
     const cur = state.dirs[i];
@@ -260,6 +268,22 @@
     }
     applyDir(i, next);
     return true;
+  }
+
+  let denyTaught = false;
+  // carved slopes refuse to move — show it, don't just play a thud
+  function denyCell(i) {
+    const g = state.els.cells[i];
+    if (!g) return;
+    g.classList.remove('deny');
+    void g.getBBox(); // restart the animation
+    g.classList.add('deny');
+    clearTimeout(g._denyT);
+    g._denyT = setTimeout(() => g.classList.remove('deny'), 360);
+    if (!denyTaught) {
+      denyTaught = true;
+      toast('that arrow is carved in stone — it never moves');
+    }
   }
 
   function applyDir(i, dir) {

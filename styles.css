@@ -256,11 +256,39 @@ body {
   cursor: pointer;
 }
 
-.cell:hover .tile { stroke: rgba(196, 221, 253, 0.35); }
+/* turnable slopes promise interaction; carved ones don't */
+.cell:not(.has-given):hover .tile { stroke: rgba(196, 221, 253, 0.35); }
 
 .cell.sel .tile { stroke: var(--moon); stroke-width: 0.045; }
 
 .pool .tile { cursor: default; }
+
+/* carved givens: solid, anchored, inert */
+.has-given .tile { fill: #151f36; cursor: default; }
+.has-given .arrow-main { fill: rgba(125, 142, 166, 0.62); stroke: none; }
+.has-given .arrow-echo { display: none; }
+
+/* an unset slope shows its empty, turnable slot */
+.slot-ring {
+  fill: none;
+  stroke: rgba(143, 160, 188, 0.38);
+  stroke-width: 0.035;
+  stroke-dasharray: 0.075 0.1;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.cell:not(.empty) .slot-ring { display: none; }
+
+/* tapping a carved slope gets a visible refusal */
+.cell.deny { animation: deny-shake 0.34s ease; }
+.cell.deny .tile { stroke: rgba(228, 96, 75, 0.55); stroke-width: 0.05; }
+@keyframes deny-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.055); }
+  40% { transform: translateX(0.055); }
+  60% { transform: translateX(-0.035); }
+  80% { transform: translateX(0.035); }
+}
 
 .arrow-path {
   fill: none;
