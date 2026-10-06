@@ -341,6 +341,11 @@ body {
 
 /* generating veil */
 
+/* The [hidden] guard must win over .veil's own display:flex — author
+   styles outrank the browser's [hidden] rule, so without this the veil
+   would stay on screen forever after generation finished. */
+.veil[hidden] { display: none; }
+
 .veil {
   position: absolute;
   inset: 0;
